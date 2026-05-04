@@ -865,5 +865,609 @@
     observer.observe(document.querySelector('.hero-stats'));
   </script>
 
+  <!-- ============================================================
+       SECTION 2 — POUR QUEL NIVEAU ES-TU ?
+  ============================================================ -->
+  <section id="niveau" aria-label="Choisir son niveau">
+    <div class="container">
+      <h2 class="section-title">Pour quel niveau es-tu ?</h2>
+      <p class="section-subtitle">Chaque section du site est conçue pour t'accompagner là où tu en es.</p>
+      <div class="gold-line" aria-hidden="true"></div>
+
+      <div class="level-grid">
+
+        <article class="level-card" tabindex="0" role="button" aria-label="Niveau débutant — aller à la section règles" onclick="scrollToSection('regles')" onkeydown="if(event.key==='Enter')scrollToSection('regles')">
+          <div class="level-icon" aria-hidden="true">♙</div>
+          <div class="level-badge level-beginner">Débutant</div>
+          <h3>Je commence</h3>
+          <p class="level-desc">Tu découvres les échecs ou tu connais à peine les pièces. On repart de zéro ensemble.</p>
+          <ul class="level-list" aria-label="Contenu pour débutants">
+            <li>✦ Mouvement de chaque pièce</li>
+            <li>✦ Règles spéciales (roque, en passant…)</li>
+            <li>✦ Notions d'échec et mat</li>
+            <li>✦ Meilleures plateformes pour débuter</li>
+            <li>✦ Chaînes YouTube débutant-friendly</li>
+            <li>✦ Livres essentiels pour démarrer</li>
+          </ul>
+          <div class="level-cta">Commencer ici <span aria-hidden="true">→</span></div>
+        </article>
+
+        <article class="level-card level-card--featured" tabindex="0" role="button" aria-label="Niveau intermédiaire — aller à la section ouvertures" onclick="scrollToSection('ouvertures')" onkeydown="if(event.key==='Enter')scrollToSection('ouvertures')">
+          <div class="level-icon" aria-hidden="true">♗</div>
+          <div class="level-badge level-intermediate">Intermédiaire</div>
+          <h3>Je progresse</h3>
+          <p class="level-desc">Tu joues régulièrement (ELO 800–1600) et tu veux franchir un cap tactique et stratégique.</p>
+          <ul class="level-list" aria-label="Contenu pour intermédiaires">
+            <li>✦ Ouvertures essentielles commentées</li>
+            <li>✦ Thèmes tactiques & combinaisons</li>
+            <li>✦ Analyse de parties</li>
+            <li>✦ Cours en ligne & Chessable</li>
+            <li>✦ Livres de stratégie intermédiaires</li>
+            <li>✦ Tournois amateurs à suivre</li>
+          </ul>
+          <div class="level-cta">Progresser maintenant <span aria-hidden="true">→</span></div>
+        </article>
+
+        <article class="level-card" tabindex="0" role="button" aria-label="Niveau expert — aller à la section tactiques" onclick="scrollToSection('tactiques')" onkeydown="if(event.key==='Enter')scrollToSection('tactiques')">
+          <div class="level-icon" aria-hidden="true">♛</div>
+          <div class="level-badge level-expert">Expert</div>
+          <h3>Je perfectionne</h3>
+          <p class="level-desc">ELO 1600+ ou passionné avancé. Tu veux des ressources de haut niveau pour te dépasser.</p>
+          <ul class="level-list" aria-label="Contenu pour experts">
+            <li>✦ Finales approfondies (Dvoretsky…)</li>
+            <li>✦ Analyse avec Stockfish</li>
+            <li>✦ Répertoire d'ouvertures solide</li>
+            <li>✦ Grands tournois & championnats</li>
+            <li>✦ Bases de données (Chessbase, SCID)</li>
+            <li>✦ Livres des grands maîtres</li>
+          </ul>
+          <div class="level-cta">Aller plus loin <span aria-hidden="true">→</span></div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3 — RÈGLES (DÉBUTANT)
+  ============================================================ -->
+  <section id="regles" aria-label="Apprendre les règles des échecs">
+    <div class="container">
+      <h2 class="section-title">Apprendre les règles</h2>
+      <p class="section-subtitle">Les pièces, leurs mouvements et les règles essentielles — cliquez sur une carte pour la retourner.</p>
+      <div class="gold-line" aria-hidden="true"></div>
+
+      <!-- Flip Cards — Pièces -->
+      <h3 class="subsection-title">Les pièces & leurs mouvements</h3>
+      <div class="flip-grid">
+
+        <div class="flip-card" tabindex="0" role="button" aria-label="Carte du Roi — cliquer pour retourner" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter')this.classList.toggle('flipped')">
+          <div class="flip-inner" aria-hidden="true">
+            <div class="flip-front">
+              <div class="flip-piece">♔</div>
+              <div class="flip-name">Le Roi</div>
+              <div class="flip-value">∞</div>
+              <div class="flip-hint">Cliquer pour en savoir plus</div>
+            </div>
+            <div class="flip-back">
+              <div class="flip-back-title">♔ Le Roi</div>
+              <div class="flip-back-move">1 case dans toutes les directions</div>
+              <p>Pièce la plus précieuse : sa prise signifie la fin de la partie. Ne peut pas se déplacer sur une case attaquée. Ne peut pas s'approcher de l'autre roi.</p>
+              <div class="flip-back-special">⚠ Roque possible si ni le roi ni la tour n'ont bougé et qu'aucune case n'est attaquée.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card" tabindex="0" role="button" aria-label="Carte de la Dame — cliquer pour retourner" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter')this.classList.toggle('flipped')">
+          <div class="flip-inner" aria-hidden="true">
+            <div class="flip-front">
+              <div class="flip-piece">♕</div>
+              <div class="flip-name">La Dame</div>
+              <div class="flip-value">9 pts</div>
+              <div class="flip-hint">Cliquer pour en savoir plus</div>
+            </div>
+            <div class="flip-back">
+              <div class="flip-back-title">♕ La Dame</div>
+              <div class="flip-back-move">Toutes directions, toutes distances</div>
+              <p>La pièce la plus puissante. Combine les mouvements de la tour et du fou. Elle peut se déplacer en ligne droite (rangées, colonnes) et en diagonale.</p>
+              <div class="flip-back-special">💡 Évitez de la sortir trop tôt — elle peut être chassée et perdre du temps.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card" tabindex="0" role="button" aria-label="Carte de la Tour — cliquer pour retourner" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter')this.classList.toggle('flipped')">
+          <div class="flip-inner" aria-hidden="true">
+            <div class="flip-front">
+              <div class="flip-piece">♖</div>
+              <div class="flip-name">La Tour</div>
+              <div class="flip-value">5 pts</div>
+              <div class="flip-hint">Cliquer pour en savoir plus</div>
+            </div>
+            <div class="flip-back">
+              <div class="flip-back-title">♖ La Tour</div>
+              <div class="flip-back-move">Lignes & colonnes, toute distance</div>
+              <p>Se déplace horizontalement et verticalement. Très puissante en finale. Les tours doublées sur une colonne ouverte sont redoutables.</p>
+              <div class="flip-back-special">⚠ Participe au roque avec le roi.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card" tabindex="0" role="button" aria-label="Carte du Fou — cliquer pour retourner" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter')this.classList.toggle('flipped')">
+          <div class="flip-inner" aria-hidden="true">
+            <div class="flip-front">
+              <div class="flip-piece">♗</div>
+              <div class="flip-name">Le Fou</div>
+              <div class="flip-value">3 pts</div>
+              <div class="flip-hint">Cliquer pour en savoir plus</div>
+            </div>
+            <div class="flip-back">
+              <div class="flip-back-title">♗ Le Fou</div>
+              <div class="flip-back-move">Diagonales, toute distance</div>
+              <p>Reste toujours sur la même couleur de case. Chaque camp possède un "fou de cases blanches" et un "fou de cases noires". La paire de fous est un avantage précieux.</p>
+              <div class="flip-back-special">💡 Un fou en fianchetto (b2 ou g2) contrôle une longue diagonale.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card" tabindex="0" role="button" aria-label="Carte du Cavalier — cliquer pour retourner" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter')this.classList.toggle('flipped')">
+          <div class="flip-inner" aria-hidden="true">
+            <div class="flip-front">
+              <div class="flip-piece">♘</div>
+              <div class="flip-name">Le Cavalier</div>
+              <div class="flip-value">3 pts</div>
+              <div class="flip-hint">Cliquer pour en savoir plus</div>
+            </div>
+            <div class="flip-back">
+              <div class="flip-back-title">♘ Le Cavalier</div>
+              <div class="flip-back-move">En "L" : 2+1 cases</div>
+              <p>La seule pièce capable de sauter par-dessus d'autres pièces. Se déplace en L (2 cases dans une direction, 1 perpendiculaire). Très efficace en position fermée.</p>
+              <div class="flip-back-special">💡 Toujours change de couleur de case à chaque coup.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-card" tabindex="0" role="button" aria-label="Carte du Pion — cliquer pour retourner" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter')this.classList.toggle('flipped')">
+          <div class="flip-inner" aria-hidden="true">
+            <div class="flip-front">
+              <div class="flip-piece">♙</div>
+              <div class="flip-name">Le Pion</div>
+              <div class="flip-value">1 pt</div>
+              <div class="flip-hint">Cliquer pour en savoir plus</div>
+            </div>
+            <div class="flip-back">
+              <div class="flip-back-title">♙ Le Pion</div>
+              <div class="flip-back-move">1 case en avant (2 au départ)</div>
+              <p>Avance d'une case (deux depuis sa position initiale). Prend en diagonale. Peut devenir n'importe quelle pièce en atteignant la dernière rangée (promotion).</p>
+              <div class="flip-back-special">⚠ Prise en passant possible immédiatement après une avance de 2 cases adverse.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Règles spéciales -->
+      <h3 class="subsection-title" style="margin-top:64px">Règles spéciales</h3>
+      <div class="special-rules-grid">
+
+        <div class="special-rule-card">
+          <div class="sr-icon" aria-hidden="true">🏰</div>
+          <h4>Le Roque</h4>
+          <p>Le roi se déplace de deux cases vers une tour, et la tour saute par-dessus pour se placer à côté. Possible seulement si ni le roi ni la tour n'ont bougé, si les cases intermédiaires sont libres, et si le roi n'est pas en échec ni ne traverse une case attaquée.</p>
+          <div class="sr-notation">e1-g1 (petit roque) · e1-c1 (grand roque)</div>
+        </div>
+
+        <div class="special-rule-card">
+          <div class="sr-icon" aria-hidden="true">⚡</div>
+          <h4>La Prise en Passant</h4>
+          <p>Lorsqu'un pion adverse avance de deux cases depuis sa position initiale et se retrouve à côté de votre pion, vous pouvez le capturer comme s'il n'avait avancé que d'une case. Cette prise n'est possible qu'immédiatement après l'avance adverse.</p>
+          <div class="sr-notation">Ex : pion blanc e5 × pion noir d5 (venant de d7)</div>
+        </div>
+
+        <div class="special-rule-card">
+          <div class="sr-icon" aria-hidden="true">👑</div>
+          <h4>La Promotion</h4>
+          <p>Quand un pion atteint la dernière rangée (8e pour les blancs, 1re pour les noirs), il est obligatoirement promu en Dame, Tour, Fou ou Cavalier — au choix du joueur. La promotion en Dame est la plus courante.</p>
+          <div class="sr-notation">e8=♕ (promotion en Dame) · e8=♘ (sous-promotion)</div>
+        </div>
+
+        <div class="special-rule-card">
+          <div class="sr-icon" aria-hidden="true">🤝</div>
+          <h4>Le Pat</h4>
+          <p>Si un joueur n'a aucun coup légal disponible mais que son roi n'est pas en échec, la partie est nulle par pat. Attention : forcer le pat contre un adversaire plus fort est une technique de défense précieuse.</p>
+          <div class="sr-notation">Résultat : ½ - ½ (nulle)</div>
+        </div>
+
+        <div class="special-rule-card">
+          <div class="sr-icon" aria-hidden="true">⚔️</div>
+          <h4>L'Échec & Mat</h4>
+          <p>Le roi est en échec (attaqué) et aucun coup légal ne peut y remédier — ni bouger le roi, ni bloquer l'attaque, ni capturer la pièce attaquante. C'est la fin de la partie.</p>
+          <div class="sr-notation">Notation : # · Ex : Dh7# (Dame en h7, mat)</div>
+        </div>
+
+        <div class="special-rule-card">
+          <div class="sr-icon" aria-hidden="true">🔄</div>
+          <h4>Autres Nulles</h4>
+          <p>Une partie peut aussi être nulle par : répétition triple de position, règle des 50 coups sans prise ni mouvement de pion, matériel insuffisant (ex : roi seul contre roi), ou accord mutuel entre les joueurs.</p>
+          <div class="sr-notation">Répétition · 50 coups · Matériel insuffisant · Accord</div>
+        </div>
+
+      </div>
+
+      <!-- Objectif du jeu -->
+      <div class="objective-banner" role="note" aria-label="Objectif du jeu">
+        <div class="ob-icon" aria-hidden="true">♚</div>
+        <div>
+          <h4>L'objectif du jeu</h4>
+          <p>Mettre le roi adverse en <strong>échec et mat</strong> : une situation où le roi est en échec et ne peut pas y échapper. La valeur des pièces sert à guider vos échanges, mais capturer des pièces n'est jamais une fin en soi — l'unique but est de mater le roi adverse.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <style>
+    /* =============================================
+       SECTION NIVEAUX
+    ============================================= */
+    #niveau { background: var(--bg-2); }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .level-card {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .level-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(212,175,55,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .level-card:hover,
+    .level-card:focus {
+      transform: translateY(-6px);
+      border-color: var(--gold);
+      box-shadow: 0 12px 40px rgba(212,175,55,0.15);
+      outline: none;
+    }
+
+    .level-card--featured {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, var(--bg-3) 0%, rgba(212,175,55,0.06) 100%);
+    }
+
+    .level-card--featured::after {
+      content: '⭐ Recommandé';
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: var(--gold);
+      color: #0a0a0a;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .level-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      display: block;
+      filter: drop-shadow(0 0 8px rgba(212,175,55,0.3));
+    }
+
+    .level-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
+
+    .level-beginner    { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .level-intermediate{ background: rgba(212,175,55,0.15); color: var(--gold); border: 1px solid var(--border); }
+    .level-expert      { background: rgba(139,26,26,0.2);   color: #f87171; border: 1px solid rgba(139,26,26,0.4); }
+
+    .level-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .level-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .level-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 24px;
+    }
+
+    .level-list li {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      padding-left: 4px;
+    }
+
+    .level-cta {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.03em;
+    }
+
+    /* =============================================
+       SECTION RÈGLES
+    ============================================= */
+    #regles { background: var(--bg); }
+
+    .subsection-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      color: var(--text);
+      margin-bottom: 28px;
+      padding-left: 16px;
+      border-left: 3px solid var(--bordeaux);
+    }
+
+    /* Flip Cards */
+    .flip-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .flip-card {
+      height: 240px;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+
+    .flip-card:focus { outline: 2px solid var(--gold); border-radius: var(--radius); }
+
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: var(--radius);
+    }
+
+    .flip-card.flipped .flip-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-front,
+    .flip-back {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+
+    .flip-front {
+      background: var(--bg-3);
+      gap: 8px;
+    }
+
+    .flip-back {
+      background: linear-gradient(135deg, var(--bg-3) 0%, rgba(139,26,26,0.08) 100%);
+      border-color: rgba(139,26,26,0.3);
+      transform: rotateY(180deg);
+      gap: 6px;
+      justify-content: flex-start;
+      padding-top: 18px;
+    }
+
+    .flip-piece {
+      font-size: 3.5rem;
+      filter: drop-shadow(0 2px 6px rgba(212,175,55,0.3));
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .flip-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .flip-value {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--gold);
+      background: rgba(212,175,55,0.1);
+      padding: 2px 10px;
+      border-radius: 100px;
+    }
+
+    .flip-hint {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .flip-back-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    .flip-back-move {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--bordeaux-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .flip-back p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      text-align: left;
+      margin-bottom: 6px;
+    }
+
+    .flip-back-special {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: rgba(212,175,55,0.07);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 8px;
+      width: 100%;
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    /* Règles spéciales */
+    .special-rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .special-rule-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+
+    .special-rule-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-3px);
+    }
+
+    .sr-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .special-rule-card h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .special-rule-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      margin-bottom: 12px;
+    }
+
+    .sr-notation {
+      font-size: 0.75rem;
+      font-family: 'Courier New', monospace;
+      color: var(--bordeaux-light);
+      background: rgba(139,26,26,0.08);
+      border: 1px solid rgba(139,26,26,0.2);
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+
+    /* Objectif banner */
+    .objective-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      background: linear-gradient(135deg, rgba(212,175,55,0.06), rgba(139,26,26,0.06));
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-top: 48px;
+    }
+
+    .ob-icon {
+      font-size: 3rem;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 12px rgba(212,175,55,0.4));
+    }
+
+    .objective-banner h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .objective-banner p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .objective-banner strong {
+      color: var(--text);
+    }
+
+    /* =============================================
+       RESPONSIVE — niveaux & règles
+    ============================================= */
+    @media (max-width: 900px) {
+      .level-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+      .level-card--featured::after { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .flip-grid { grid-template-columns: repeat(2, 1fr); }
+      .special-rules-grid { grid-template-columns: 1fr; }
+      .objective-banner { flex-direction: column; gap: 16px; }
+    }
+
+    @media (max-width: 360px) {
+      .flip-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <script>
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
+
 </body>
 </html>
