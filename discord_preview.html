@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArkianIQ — Aperçu Discord</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #1e1f22; color: #dcddde; display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Server list (far left) ── */
+    .server-list {
+      width: 72px; background: #1e1f22; display: flex; flex-direction: column;
+      align-items: center; padding: 12px 0; gap: 8px; overflow-y: auto;
+    }
+    .server-icon {
+      width: 48px; height: 48px; border-radius: 50%; background: #5865f2;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; cursor: pointer; transition: border-radius .15s;
+      position: relative;
+    }
+    .server-icon.active { border-radius: 16px; background: #404eed; }
+    .server-icon:hover { border-radius: 16px; }
+    .server-icon.active::before {
+      content: ''; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+      width: 8px; height: 40px; background: #fff; border-radius: 0 4px 4px 0;
+    }
+    .server-divider { width: 32px; height: 2px; background: #3f4147; border-radius: 1px; }
+
+    /* ── Channel sidebar ── */
+    .sidebar {
+      width: 240px; background: #2b2d31; display: flex; flex-direction: column;
+      flex-shrink: 0;
+    }
+    .server-header {
+      height: 48px; padding: 0 16px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid #1e1f22;
+      font-weight: 600; font-size: 15px; cursor: pointer;
+    }
+    .server-header:hover { background: #35373c; }
+    .channel-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .channel-list::-webkit-scrollbar { width: 4px; }
+    .channel-list::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 2px; }
+
+    .category {
+      margin-top: 16px;
+    }
+    .category-header {
+      padding: 4px 8px 4px 16px; display: flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; color: #949ba4; text-transform: uppercase;
+      letter-spacing: .05em; cursor: pointer; user-select: none;
+    }
+    .category-header:hover { color: #dcddde; }
+    .category-arrow { font-size: 10px; transition: transform .15s; }
+    .category.collapsed .category-arrow { transform: rotate(-90deg); }
+    .category.collapsed .channels { display: none; }
+
+    .channel-item {
+      padding: 4px 8px 4px 32px; display: flex; align-items: center; gap: 6px;
+      border-radius: 4px; margin: 0 8px; cursor: pointer; font-size: 15px;
+      color: #949ba4; transition: background .1s;
+    }
+    .channel-item:hover { background: #35373c; color: #dcddde; }
+    .channel-item.active { background: #404249; color: #fff; }
+    .channel-item .ch-icon { font-size: 16px; flex-shrink: 0; }
+    .channel-item .ch-name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-item .lock { margin-left: auto; font-size: 11px; opacity: .5; }
+
+    /* User panel */
+    .user-panel {
+      height: 52px; background: #232428; display: flex; align-items: center;
+      padding: 0 8px; gap: 8px;
+    }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: #5865f2;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+      flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 13px; font-weight: 600; color: #f2f3f5; }
+    .user-status { font-size: 11px; color: #949ba4; }
+
+    /* ── Main content ── */
+    .main { flex: 1; display: flex; flex-direction: column; background: #313338; min-width: 0; }
+
+    .channel-header {
+      height: 48px; padding: 0 16px; display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid #1e1f22; font-weight: 600;
+    }
+    .channel-header .ch-icon { font-size: 20px; }
+
+    .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+    .messages::-webkit-scrollbar { width: 6px; }
+    .messages::-webkit-scrollbar-thumb { background: #1e1f22; border-radius: 3px; }
+
+    .msg { display: flex; gap: 12px; }
+    .msg-avatar {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .av-gold { background: linear-gradient(135deg,#f6c90e,#e0a800); }
+    .av-blue { background: #5865f2; }
+    .av-green { background: #57f287; color: #1e1f22; }
+    .av-purple { background: #9b59b6; }
+    .av-bot { background: #404eed; }
+
+    .msg-body { flex: 1; min-width: 0; }
+    .msg-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+    .msg-author { font-weight: 600; font-size: 15px; }
+    .role-badge {
+      font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600;
+    }
+    .badge-owner  { background: #ffd70020; color: #ffd700; border: 1px solid #ffd70050; }
+    .badge-vip    { background: #9b59b620; color: #c39bd3; border: 1px solid #9b59b650; }
+    .badge-mod    { background: #ff444420; color: #ff6b6b; border: 1px solid #ff444450; }
+    .badge-bot    { background: #5865f220; color: #7289da; border: 1px solid #5865f250; }
+    .badge-lv     { background: #57f28720; color: #57f287; border: 1px solid #57f28750; }
+    .msg-time { font-size: 11px; color: #72767d; }
+    .msg-text { font-size: 14px; line-height: 1.5; color: #dcddde; }
+    .msg-text a { color: #00b0f4; text-decoration: none; }
+    .msg-text a:hover { text-decoration: underline; }
+
+    /* Embeds */
+    .embed {
+      border-left: 4px solid #5865f2; background: #2b2d31; border-radius: 0 4px 4px 0;
+      padding: 12px 16px; margin-top: 6px; max-width: 520px;
+    }
+    .embed.gold   { border-color: #ffd700; }
+    .embed.green  { border-color: #57f287; }
+    .embed.purple { border-color: #9b59b6; }
+    .embed.red    { border-color: #ed4245; }
+    .embed-title  { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+    .embed-body   { font-size: 13px; color: #b9bbbe; line-height: 1.6; }
+    .embed-fields { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+    .embed-field  { min-width: 120px; }
+    .field-name   { font-weight: 700; font-size: 12px; color: #dcddde; margin-bottom: 2px; }
+    .field-value  { font-size: 13px; color: #b9bbbe; }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+    .btn {
+      padding: 7px 16px; border-radius: 4px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: filter .15s;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn-primary { background: #5865f2; color: #fff; }
+    .btn-success { background: #57f287; color: #1e1f22; }
+    .btn-danger  { background: #ed4245; color: #fff; }
+
+    /* System message */
+    .sys-msg {
+      display: flex; align-items: center; gap: 8px; font-size: 13px; color: #72767d;
+      padding: 2px 0;
+    }
+    .sys-msg::before { content: ''; flex: 0 0 40px; }
+
+    /* Reaction */
+    .reactions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .reaction {
+      background: #2b2d31; border: 1px solid #3f4147; border-radius: 8px;
+      padding: 2px 8px; font-size: 12px; cursor: pointer; display: flex;
+      align-items: center; gap: 4px;
+    }
+    .reaction:hover { background: #35373c; }
+    .reaction.active { background: #5865f220; border-color: #5865f2; }
+
+    /* ── Right panel ── */
+    .right-panel {
+      width: 240px; background: #2b2d31; border-left: 1px solid #1e1f22;
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .panel-header {
+      height: 48px; padding: 0 16px; display: flex; align-items: center;
+      border-bottom: 1px solid #1e1f22; font-weight: 700; font-size: 12px;
+      text-transform: uppercase; letter-spacing: .05em; color: #949ba4;
+    }
+    .member-section { padding: 8px 8px 4px 8px; }
+    .member-section-title {
+      font-size: 11px; font-weight: 700; color: #949ba4; text-transform: uppercase;
+      letter-spacing: .05em; padding: 4px 8px; margin-bottom: 4px;
+    }
+    .member-item {
+      display: flex; align-items: center; gap: 8px; padding: 4px 8px;
+      border-radius: 4px; cursor: pointer;
+    }
+    .member-item:hover { background: #35373c; }
+    .member-avatar {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+      position: relative;
+    }
+    .status-dot {
+      width: 10px; height: 10px; border-radius: 50%; border: 2px solid #2b2d31;
+      position: absolute; bottom: -1px; right: -1px;
+    }
+    .online  { background: #23a55a; }
+    .idle    { background: #f0b232; }
+    .dnd     { background: #ed4245; }
+    .offline { background: #80848e; }
+    .member-name { font-size: 14px; color: #dcddde; font-weight: 500; }
+    .member-role { font-size: 11px; color: #949ba4; }
+
+    /* XP Bar */
+    .xp-card {
+      margin: 12px 8px; background: #232428; border-radius: 8px; padding: 12px;
+    }
+    .xp-header { font-size: 12px; color: #949ba4; margin-bottom: 8px; font-weight: 600; }
+    .xp-bar-bg {
+      background: #1e1f22; border-radius: 99px; height: 8px; overflow: hidden;
+    }
+    .xp-bar-fill {
+      height: 100%; border-radius: 99px;
+      background: linear-gradient(90deg, #5865f2, #57f287);
+      transition: width .5s;
+    }
+    .xp-labels { display: flex; justify-content: space-between; font-size: 11px; color: #72767d; margin-top: 4px; }
+
+    /* Nav tabs */
+    .nav-tabs { display: flex; gap: 4px; padding: 8px; border-bottom: 1px solid #1e1f22; }
+    .nav-tab {
+      padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: 600;
+      cursor: pointer; color: #949ba4;
+    }
+    .nav-tab:hover { background: #35373c; color: #dcddde; }
+    .nav-tab.active { background: #404249; color: #fff; }
+
+    /* Input bar */
+    .input-bar {
+      padding: 0 16px 16px;
+    }
+    .input-box {
+      background: #383a40; border-radius: 8px; padding: 10px 16px;
+      font-size: 14px; color: #72767d; display: flex; align-items: center; gap: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .right-panel { display: none; }
+    }
+    @media (max-width: 600px) {
+      .server-list { display: none; }
+      .sidebar { width: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SERVER LIST ── -->
+<div class="server-list">
+  <div class="server-icon active" title="ArkianIQ Trading">📈</div>
+  <div class="server-divider"></div>
+  <div class="server-icon" style="background:#57f287;color:#1e1f22" title="Autre serveur">🎮</div>
+  <div class="server-icon" style="background:#ed4245" title="Autre serveur">🎵</div>
+  <div class="server-divider"></div>
+  <div class="server-icon" style="background:#3f4147;font-size:26px" title="Ajouter un serveur">+</div>
+</div>
+
+<!-- ── SIDEBAR ── -->
+<div class="sidebar">
+  <div class="server-header">
+    ArkianIQ Trading
+    <span style="font-size:18px">∨</span>
+  </div>
+
+  <div class="channel-list" id="channelList">
+
+    <!-- ACCUEIL -->
+    <div class="category" id="cat-accueil">
+      <div class="category-header" onclick="toggleCat('cat-accueil')">
+        <span class="category-arrow">▼</span> 📌 ACCUEIL
+      </div>
+      <div class="channels">
+        <div class="channel-item" onclick="loadChannel('regles')"><span class="ch-icon">📋</span><span class="ch-name">règles</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('bienvenue')"><span class="ch-icon">👋</span><span class="ch-name">bienvenue</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('presentation')"><span class="ch-icon">🎯</span><span class="ch-name">présentation</span></div>
+        <div class="channel-item" onclick="loadChannel('annonces')"><span class="ch-icon">📢</span><span class="ch-name">annonces</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('guide')"><span class="ch-icon">🗺️</span><span class="ch-name">guide-serveur</span><span class="lock">🔒</span></div>
+      </div>
+    </div>
+
+    <!-- VERIFICATION -->
+    <div class="category" id="cat-verif">
+      <div class="category-header" onclick="toggleCat('cat-verif')">
+        <span class="category-arrow">▼</span> ✅ VÉRIFICATION & RÔLES
+      </div>
+      <div class="channels">
+        <div class="channel-item active" id="ch-verif" onclick="loadChannel('verification')"><span class="ch-icon">✅</span><span class="ch-name">vérification</span></div>
+        <div class="channel-item" onclick="loadChannel('choix-roles')"><span class="ch-icon">🎭</span><span class="ch-name">choix-rôles</span></div>
+        <div class="channel-item" onclick="loadChannel('niveau-trading')"><span class="ch-icon">📊</span><span class="ch-name">niveau-trading</span></div>
+      </div>
+    </div>
+
+    <!-- INFO ARKIAN -->
+    <div class="category" id="cat-info">
+      <div class="category-header" onclick="toggleCat('cat-info')">
+        <span class="category-arrow">▼</span> 🌟 INFO ARKIAN
+      </div>
+      <div class="channels">
+        <div class="channel-item" onclick="loadChannel('presentation-arkian')"><span class="ch-icon">🌟</span><span class="ch-name">présentation-arkian</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('youtube')"><span class="ch-icon">📺</span><span class="ch-name">youtube</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('paiements')"><span class="ch-icon">💰</span><span class="ch-name">les-paiements</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('live-alerte')"><span class="ch-icon">🔔</span><span class="ch-name">live-alerte</span><span class="lock">🔒</span></div>
+      </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="category" id="cat-edu">
+      <div class="category-header" onclick="toggleCat('cat-edu')">
+        <span class="category-arrow">▼</span> 📚 ÉDUCATION GRATUITE
+      </div>
+      <div class="channels">
+        <div class="channel-item" onclick="loadChannel('ressources')"><span class="ch-icon">📚</span><span class="ch-name">ressources-gratuites</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('macro')"><span class="ch-icon">🧠</span><span class="ch-name">info-macro</span></div>
+        <div class="channel-item" onclick="loadChannel('general')"><span class="ch-icon">💬</span><span class="ch-name">discussion-générale</span></div>
+        <div class="channel-item" onclick="loadChannel('questions')"><span class="ch-icon">❓</span><span class="ch-name">questions-débutants</span></div>
+      </div>
+    </div>
+
+    <!-- ACTIFS -->
+    <div class="category" id="cat-actifs">
+      <div class="category-header" onclick="toggleCat('cat-actifs')">
+        <span class="category-arrow">▼</span> 📈 ACTIFS À TRADE
+      </div>
+      <div class="channels">
+        <div class="channel-item" onclick="loadChannel('forex')"><span class="ch-icon">📈</span><span class="ch-name">forex</span></div>
+        <div class="channel-item" onclick="loadChannel('indices')"><span class="ch-icon">📉</span><span class="ch-name">indices</span></div>
+        <div class="channel-item" onclick="loadChannel('matieres')"><span class="ch-icon">🏅</span><span class="ch-name">matières-premières</span></div>
+        <div class="channel-item" onclick="loadChannel('cryptos')"><span class="ch-icon">🪙</span><span class="ch-name">cryptos</span></div>
+        <div class="channel-item" onclick="loadChannel('actions')"><span class="ch-icon">📊</span><span class="ch-name">actions-bourse</span></div>
+        <div class="channel-item" onclick="loadChannel('signaux-gratuits')"><span class="ch-icon">⚡</span><span class="ch-name">signaux-gratuits</span></div>
+      </div>
+    </div>
+
+    <!-- VIP -->
+    <div class="category" id="cat-vip">
+      <div class="category-header" onclick="toggleCat('cat-vip')">
+        <span class="category-arrow">▼</span> ⭐ TRADING MASTER VIP
+      </div>
+      <div class="channels">
+        <div class="channel-item" onclick="loadChannel('plans')"><span class="ch-icon">🗓️</span><span class="ch-name">plans-de-la-semaine</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('annonces-vip')"><span class="ch-icon">📣</span><span class="ch-name">annonces-vip</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('positions')"><span class="ch-icon">📍</span><span class="ch-name">mes-positions</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('semaine')"><span class="ch-icon">📆</span><span class="ch-name">semaine-plans</span></div>
+        <div class="channel-item" onclick="loadChannel('signaux-vip')"><span class="ch-icon">💎</span><span class="ch-name">signaux-vip</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('master-disc')"><span class="ch-icon">🔒</span><span class="ch-name">master-discussions</span></div>
+        <div class="channel-item" onclick="loadChannel('educatif')"><span class="ch-icon">🎓</span><span class="ch-name">éducatif-premium</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('journal')"><span class="ch-icon">📋</span><span class="ch-name">journal-de-trade</span></div>
+      </div>
+    </div>
+
+    <!-- COMMUNAUTE -->
+    <div class="category" id="cat-com">
+      <div class="category-header" onclick="toggleCat('cat-com')">
+        <span class="category-arrow">▼</span> 🏆 COMMUNAUTÉ
+      </div>
+      <div class="channels">
+        <div class="channel-item" onclick="loadChannel('classement')"><span class="ch-icon">🏆</span><span class="ch-name">classement</span></div>
+        <div class="channel-item" onclick="loadChannel('recompenses')"><span class="ch-icon">🎉</span><span class="ch-name">récompenses</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('partenariats')"><span class="ch-icon">🤝</span><span class="ch-name">partenariats</span><span class="lock">🔒</span></div>
+        <div class="channel-item" onclick="loadChannel('resultats')"><span class="ch-icon">📸</span><span class="ch-name">résultats-trades</span></div>
+      </div>
+    </div>
+
+    <!-- COACHING -->
+    <div class="category" id="cat-coaching">
+      <div class="category-header" onclick="toggleCat('cat-coaching')">
+        <span class="category-arrow">▼</span> 🎓 COACHING
+      </div>
+      <div class="channels">
+        <div class="channel-item" onclick="loadChannel('reservation')"><span class="ch-icon">📅</span><span class="ch-name">réservation</span></div>
+        <div class="channel-item" style="color:#949ba4"><span class="ch-icon">🎙️</span><span class="ch-name">coaching-vocal</span><span style="margin-left:auto;font-size:11px">🔊</span></div>
+        <div class="channel-item" onclick="loadChannel('suivi')"><span class="ch-icon">📝</span><span class="ch-name">suivi-élèves</span></div>
+      </div>
+    </div>
+
+    <!-- VOCAL -->
+    <div class="category" id="cat-vocal">
+      <div class="category-header" onclick="toggleCat('cat-vocal')">
+        <span class="category-arrow">▼</span> 🔊 VOCAL
+      </div>
+      <div class="channels">
+        <div class="channel-item" style="color:#949ba4"><span class="ch-icon">🔊</span><span class="ch-name">général</span><span style="margin-left:auto;font-size:11px">🔊</span></div>
+        <div class="channel-item" style="color:#949ba4"><span class="ch-icon">📡</span><span class="ch-name">live-trading</span><span style="margin-left:auto;font-size:11px">🔊</span></div>
+        <div class="channel-item" style="color:#949ba4"><span class="ch-icon">🎓</span><span class="ch-name">formation-live</span><span style="margin-left:auto;font-size:11px">🔊</span></div>
+        <div class="channel-item" style="color:#949ba4"><span class="ch-icon">🤫</span><span class="ch-name">lounge-vip</span><span style="margin-left:auto;font-size:11px">🔒</span></div>
+      </div>
+    </div>
+
+  </div><!-- end channel-list -->
+
+  <div class="user-panel">
+    <div class="user-avatar av-gold">A</div>
+    <div class="user-info">
+      <div class="user-name">Arkian</div>
+      <div class="user-status">👑 Owner</div>
+    </div>
+    <span style="font-size:18px;cursor:pointer;color:#949ba4">⚙️</span>
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<div class="main" id="mainContent">
+
+  <!-- Nav tabs -->
+  <div class="channel-header" id="channelHeaderBar">
+    <span class="ch-icon" id="currentChanIcon">✅</span>
+    <span id="currentChanName" style="font-weight:700">vérification</span>
+    <span style="color:#72767d;font-size:13px;margin-left:8px">Accepte les règles pour rejoindre la communauté</span>
+  </div>
+
+  <div class="messages" id="messages">
+    <!-- Default: verification channel -->
+  </div>
+
+  <div class="input-bar">
+    <div class="input-box">
+      <span>➕</span>
+      <span style="flex:1">Message #vérification</span>
+      <span>😊</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── RIGHT PANEL ── -->
+<div class="right-panel">
+  <div class="panel-header">Membres — <span style="color:#23a55a;margin-left:4px">3 en ligne</span></div>
+
+  <div class="member-section">
+    <div class="member-section-title" style="color:#ffd700">👑 Arkian</div>
+    <div class="member-item">
+      <div class="member-avatar av-gold">A<div class="status-dot online"></div></div>
+      <div><div class="member-name">Arkian</div><div class="member-role">Owner</div></div>
+    </div>
+  </div>
+
+  <div class="member-section">
+    <div class="member-section-title" style="color:#ff6b6b">🛡️ Modération</div>
+    <div class="member-item">
+      <div class="member-avatar" style="background:#ff4444;color:#fff">M<div class="status-dot online"></div></div>
+      <div><div class="member-name">ModBot</div><div class="member-role">Modérateur</div></div>
+    </div>
+  </div>
+
+  <div class="member-section">
+    <div class="member-section-title" style="color:#c39bd3">⭐ VIP Trading Master</div>
+    <div class="member-item">
+      <div class="member-avatar av-purple">T<div class="status-dot online"></div></div>
+      <div><div class="member-name">Théo_FX</div><div class="member-role">💎 Trader Elite</div></div>
+    </div>
+    <div class="member-item">
+      <div class="member-avatar" style="background:#8e44ad;color:#fff">L<div class="status-dot idle"></div></div>
+      <div><div class="member-name">Lucas_Trade</div><div class="member-role">🥇 Trader Expert</div></div>
+    </div>
+  </div>
+
+  <div class="member-section">
+    <div class="member-section-title" style="color:#2ecc71">✅ Membres Vérifiés</div>
+    <div class="member-item">
+      <div class="member-avatar av-green">S<div class="status-dot online"></div></div>
+      <div><div class="member-name">Sarah_Crypto</div><div class="member-role">🥈 Trader Confirmé</div></div>
+    </div>
+    <div class="member-item">
+      <div class="member-avatar av-blue">K<div class="status-dot offline"></div></div>
+      <div><div class="member-name">Kevin_DAX</div><div class="member-role">🥉 Apprenti Trader</div></div>
+    </div>
+  </div>
+
+  <!-- XP Card -->
+  <div class="xp-card">
+    <div class="xp-header">🏆 Ton niveau MEE6</div>
+    <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
+      <span style="font-size:20px;font-weight:700;color:#57f287">Nv. 12</span>
+      <span style="font-size:12px;color:#949ba4">Trader Confirmé dans 3 niveaux</span>
+    </div>
+    <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:72%"></div></div>
+    <div class="xp-labels"><span>1 440 XP</span><span>2 000 XP</span></div>
+  </div>
+
+</div>
+
+<!-- ─────────── CHANNEL DATA ─────────── -->
+<script>
+const channels = {
+
+  verification: {
+    icon: '✅', name: 'vérification',
+    desc: 'Accepte les règles pour rejoindre la communauté',
+    messages: [
+      { av: 'av-bot', author: 'Carl-bot', badges: ['badge-bot'], time: 'Aujourd\'hui à 09:00', text: ''},
+      { av: 'av-gold', author: 'Arkian', badges: ['badge-owner'], time: 'Aujourd\'hui à 09:01',
+        text: 'Bienvenue sur <strong>ArkianIQ Trading</strong> ! Lis les règles dans <strong>#règles</strong> puis clique sur le bouton ci-dessus pour accéder au serveur. 🎯', reactions:[{e:'👋',n:47},{e:'✅',n:32}] }
+    ],
+    embed: { color:'green', title:'✅ Acceptation des règles', body:'En cliquant sur "J\'accepte", tu confirmes avoir lu et accepté les règles du serveur.\n\nTu recevras automatiquement le rôle <strong>✅ Membre Vérifié</strong> et auras accès à tous les salons publics.', btn:[{cls:'btn-success',label:'✅ J\'accepte les règles'}] }
+  },
+
+  regles: {
+    icon: '📋', name: 'règles',
+    desc: 'Règles du serveur — Lecture seule',
+    messages: [
+      { av: 'av-gold', author: 'Arkian', badges: ['badge-owner'], time: 'Aujourd\'hui à 08:00', text: '' }
+    ],
+    embed: { color:'gold', title:'📋 Règles du serveur ArkianIQ', body:
+      '<strong>1.</strong> Respectez tous les membres — aucune insulte, discrimination ou harcèlement.<br><br>' +
+      '<strong>2.</strong> Pas de spam, de flood ou de messages répétitifs.<br><br>' +
+      '<strong>3.</strong> Pas de publicité, d\'auto-promotion ou de liens non sollicités.<br><br>' +
+      '<strong>4.</strong> Les conseils financiers partagés ici sont éducatifs — tradez à votre propre risque.<br><br>' +
+      '<strong>5.</strong> Restez dans le sujet de chaque salon.<br><br>' +
+      '<strong>6.</strong> Les décisions des modérateurs sont finales.<br><br>' +
+      '⚠️ Toute violation entraîne un avertissement, mute ou ban définitif selon la gravité.'}
+  },
+
+  bienvenue: {
+    icon: '👋', name: 'bienvenue',
+    desc: 'Message automatique à chaque nouveau membre',
+    messages: [
+      { av: 'av-bot', author: 'Carl-bot', badges: ['badge-bot'], time: 'Il y a 2 min', text: '' },
+      { av: 'av-bot', author: 'Carl-bot', badges: ['badge-bot'], time: 'Il y a 5 min', text: '' },
+    ],
+    embed: { color:'', title:'👋 Bienvenue AlexTrader !', body:'Contenu de bienvenue personnalisé par Carl-bot. Rends-toi dans <strong>#vérification</strong> pour accéder au serveur !', fields:[{n:'Membre n°',v:'1 247'},{n:'Rejoint le',v:'05/05/2026'}] }
+  },
+
+  annonces: {
+    icon: '📢', name: 'annonces',
+    desc: 'Annonces officielles importantes',
+    messages: [
+      { av: 'av-gold', author: 'Arkian', badges: ['badge-owner'], time: 'Aujourd\'hui à 10:00', text: '@everyone 🔥 <strong>LIVE TRADING CE SOIR 20H00</strong> — on attaque le DAX et l\'OR en direct. Rejoins le salon vocal 📡・live-trading !', reactions:[{e:'🔥',n:89},{e:'✅',n:67},{e:'📈',n:45}] }
+    ]
+  },
+
+  forex: {
+    icon: '📈', name: 'forex',
+    desc: 'Analyses & idées Forex',
+    messages: [
+      { av: 'av-gold', author: 'Arkian', badges: ['badge-owner'], time: 'Aujourd\'hui à 08:30', text: '📊 <strong>Analyse EUR/USD</strong> — La paire se consolide autour du support 1.0780. Je surveille un rebond vers 1.0850 en cas de confirmation H4. SL sous 1.0740.' },
+      { av: 'av-purple', author: 'Théo_FX', badges: ['badge-vip','badge-lv'], time: 'Aujourd\'hui à 09:15', text: 'GBP/USD aussi intéressant ce matin, la cassure du 1.2650 peut amener vers 1.2720 📈', reactions:[{e:'👍',n:12},{e:'📈',n:8}] },
+      { av: 'av-green', author: 'Sarah_Crypto', badges: [], time: 'Aujourd\'hui à 09:44', text: 'Merci pour l\'analyse Arkian, j\'ai pris la position EUR/USD, TP1 atteint ✅' },
+    ]
+  },
+
+  signaux_vip: {
+    icon: '💎', name: 'signaux-vip',
+    desc: 'Signaux premium détaillés — VIP uniquement',
+    messages: [
+      { av: 'av-gold', author: 'Arkian', badges: ['badge-owner'], time: 'Aujourd\'hui à 07:45', text: '' }
+    ],
+    embed: { color:'purple', title:'💎 Signal VIP — XAUUSD (Or)', body:'',
+      fields:[{n:'🎯 Direction',v:'LONG'},{n:'📥 Entrée',v:'2 318 – 2 322'},{n:'🛑 Stop Loss',v:'2 298'},{n:'🎯 TP1',v:'2 345'},{n:'🎯 TP2',v:'2 370'},{n:'⚖️ Risk/Reward',v:'1:2.4'},{n:'⏰ Timeframe',v:'H4'}] }
+  },
+
+  classement: {
+    icon: '🏆', name: 'classement',
+    desc: 'Leaderboard XP — Propulsé par MEE6',
+    messages: [
+      { av: 'av-bot', author: 'MEE6', badges: ['badge-bot'], time: 'Aujourd\'hui à 00:00', text: '🏆 <strong>Top Membres de la semaine</strong>\n\n🥇 <strong>Théo_FX</strong> — Niveau 28 — 5 620 XP\n🥈 <strong>Lucas_Trade</strong> — Niveau 24 — 4 890 XP\n🥉 <strong>Sarah_Crypto</strong> — Niveau 19 — 3 240 XP\n4. Kevin_DAX — Niveau 12 — 1 440 XP\n5. Marie_Indices — Niveau 9 — 890 XP', reactions:[{e:'🏆',n:34}] }
+    ]
+  },
+
+  general: {
+    icon: '💬', name: 'discussion-générale',
+    desc: 'Discussion ouverte',
+    messages: [
+      { av: 'av-green', author: 'Sarah_Crypto', badges: [], time: 'Aujourd\'hui à 11:20', text: 'Quelqu\'un suit l\'or ce matin ? Le mouvement est violent 👀' },
+      { av: 'av-purple', author: 'Théo_FX', badges: ['badge-vip'], time: 'Aujourd\'hui à 11:21', text: 'Oui, j\'attends la réaction sur le support 2300 pour entrer long 🎯' },
+      { av: 'av-blue', author: 'Kevin_DAX', badges: [], time: 'Aujourd\'hui à 11:23', text: 'Moi je suis surtout le DAX, ouverture volatile ce matin avec les news US' },
+      { av: 'av-green', author: 'Sarah_Crypto', badges: [], time: 'Aujourd\'hui à 11:25', text: 'Arkian va probablement faire une analyse sur le live ce soir, hâte ! 🔥', reactions:[{e:'🔥',n:15},{e:'✅',n:9}] },
+    ]
+  },
+
+  plans: {
+    icon: '🗓️', name: 'plans-de-la-semaine',
+    desc: 'Plan hebdomadaire — VIP uniquement',
+    messages: [
+      { av: 'av-gold', author: 'Arkian', badges: ['badge-owner'], time: 'Lundi à 08:00', text: '' }
+    ],
+    embed: { color:'gold', title:'🗓️ Plan de la semaine — 5 au 9 Mai 2026', body:'',
+      fields:[{n:'🥇 Focus principal',v:'XAUUSD — Long sur support'},{n:'📈 Forex',v:'EUR/USD, GBP/JPY'},{n:'📉 Indices',v:'DAX — attente NFP'},{n:'🪙 Crypto',v:'BTC consolidation, surveiller 65K'},{n:'⚠️ Événements macro',v:'NFP Vendredi 14:30, FOMC Mercredi'}] }
+  },
+
+  positions: {
+    icon: '📍', name: 'mes-positions',
+    desc: 'Positions live d\'Arkian — VIP',
+    messages: [
+      { av: 'av-gold', author: 'Arkian', badges: ['badge-owner'], time: 'Aujourd\'hui à 09:00', text: '' }
+    ],
+    embed: { color:'green', title:'📍 Positions ouvertes — MAJ 09:00', body:'',
+      fields:[{n:'✅ XAUUSD Long',v:'+127 pips (+2.1%)'},{n:'⏳ EURUSD Long',v:'En cours — entrée 1.0785'},{n:'❌ GBPJPY Short',v:'SL touché — 0% (breakeven)'}] }
+  },
+
+  resultats: {
+    icon: '📸', name: 'résultats-trades',
+    desc: 'Les membres partagent leurs résultats',
+    messages: [
+      { av: 'av-purple', author: 'Théo_FX', badges: ['badge-vip','badge-lv'], time: 'Hier à 17:30', text: '✅ <strong>+3.2% cette semaine</strong> grâce aux signaux VIP de @Arkian ! L\'or a été parfait 🏆 [capture d\'écran jointe]', reactions:[{e:'🔥',n:28},{e:'💎',n:19},{e:'👏',n:14}] },
+      { av: 'av-green', author: 'Sarah_Crypto', badges: [], time: 'Aujourd\'hui à 10:15', text: '📈 TP2 atteint sur EUR/USD ! +87 pips, merci pour le signal de ce matin @Arkian 🙏', reactions:[{e:'🎉',n:12},{e:'💪',n:8}] },
+    ]
+  },
+
+  reservation: {
+    icon: '📅', name: 'réservation',
+    desc: 'Réserve ta session coaching',
+    messages: [
+      { av: 'av-gold', author: 'Arkian', badges: ['badge-owner'], time: 'Hier à 12:00', text: '' }
+    ],
+    embed: { color:'', title:'📅 Réservation Coaching', body:'Prends rendez-vous directement via Calendly. Les sessions durent 60 minutes et se déroulent sur ce serveur vocal.',
+      btn:[{cls:'btn-primary',label:'📅 Réserver une session'}] }
+  },
+
+};
+
+// ── RENDER ──────────────────────────────────────────────────────────────────
+
+function loadChannel(id) {
+  const data = channels[id] || channels['general'];
+  document.getElementById('currentChanIcon').textContent = data.icon;
+  document.getElementById('currentChanName').textContent = data.name;
+  document.getElementById('channelHeaderBar').querySelector('span:last-child').textContent = data.desc || '';
+
+  // Update active sidebar item
+  document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+
+  const msgEl = document.getElementById('messages');
+  msgEl.innerHTML = '';
+
+  // Welcome pill
+  const pill = document.createElement('div');
+  pill.className = 'sys-msg';
+  pill.innerHTML = `<span>📌 Bienvenue dans <strong>#${data.name}</strong> — ${data.desc || ''}</span>`;
+  msgEl.appendChild(pill);
+
+  data.messages.forEach((m, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg';
+
+    const badges = (m.badges||[]).map(b => `<span class="role-badge ${b}">${b==='badge-owner'?'👑 Owner':b==='badge-vip'?'⭐ VIP':b==='badge-bot'?'🤖 BOT':'💎 Elite'}</span>`).join('');
+    const reactHTML = m.reactions ? '<div class="reactions">'+m.reactions.map(r=>`<div class="reaction">${r.e} <span>${r.n}</span></div>`).join('')+'</div>' : '';
+
+    // Embed on first message if defined
+    let embedHTML = '';
+    if (i === 0 && data.embed) {
+      const e = data.embed;
+      const fieldsHTML = e.fields ? '<div class="embed-fields">'+e.fields.map(f=>`<div class="embed-field"><div class="field-name">${f.n}</div><div class="field-value">${f.v}</div></div>`).join('')+'</div>' : '';
+      const btnsHTML = e.btn ? '<div class="btn-row">'+e.btn.map(b=>`<button class="btn ${b.cls}">${b.label}</button>`).join('')+'</div>' : '';
+      embedHTML = `<div class="embed ${e.color}"><div class="embed-title">${e.title}</div><div class="embed-body">${e.body||''}</div>${fieldsHTML}${btnsHTML}</div>`;
+    }
+
+    wrap.innerHTML = `
+      <div class="msg-avatar ${m.av}">${m.author[0]}</div>
+      <div class="msg-body">
+        <div class="msg-header">
+          <span class="msg-author" style="color:${getColor(m.badges)}">${m.author}</span>
+          ${badges}
+          <span class="msg-time">${m.time}</span>
+        </div>
+        <div class="msg-text">${m.text}</div>
+        ${embedHTML}
+        ${reactHTML}
+      </div>`;
+    msgEl.appendChild(wrap);
+  });
+
+  msgEl.scrollTop = msgEl.scrollHeight;
+  document.getElementById('mainContent').querySelector('.input-bar .input-box span:nth-child(2)').textContent = `Message #${data.name}`;
+}
+
+function getColor(badges) {
+  if (!badges) return '#dcddde';
+  if (badges.includes('badge-owner')) return '#ffd700';
+  if (badges.includes('badge-vip')) return '#c39bd3';
+  if (badges.includes('badge-mod')) return '#ff6b6b';
+  if (badges.includes('badge-bot')) return '#7289da';
+  return '#dcddde';
+}
+
+function toggleCat(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+// Init
+loadChannel('verification');
+</script>
+
+</body>
+</html>
